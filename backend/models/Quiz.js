@@ -1,0 +1,82 @@
+import mongoose from "mongoose";
+
+const quizSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
+    documentId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Document',
+        required: true
+    },
+    title: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    question: [{
+        question: {
+            type: String,
+            required: true
+        },
+        options: {
+            type: [String],
+            required: true,
+            validate: [Array.length === 4, 'must have exactly 4 options']
+        },
+        correctAnswer: {
+            type: String,
+            required: true
+        },
+        explation: {
+            type: String,
+            default: ''
+        },
+        difficulty: {
+             type: String,
+             enum: ['easy','medium','hard'],
+             default:'medium'
+        }
+    }],
+    userAnswers: [{
+        questionIndex: {
+            type: Number,
+            required: true
+        },
+        selectedAnswers : {
+            type: String,
+            required: true
+        },
+        isCorrect: {
+            type: Boolean,
+             required: true
+        },
+        answerAt: {
+            type:Date,
+            default: Date.now
+        }
+    }],
+    score: {
+        type: Number,
+        default:0
+    },
+    totalQuestions: {
+        type: Number,
+        required: true
+    },
+    completedAt: {
+        type: Date,
+         default:null
+    }
+},
+  {
+    timestamps: true
+  });
+
+  quizSchema.index({ userId:1, documentId: 1 });
+
+  const Quiz = mongoose.model('Quiz',quizSchema);
+
+  export default Quiz;
