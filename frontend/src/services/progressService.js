@@ -1,5 +1,6 @@
-import axiosInstance from '../utils/axiosInstance';
-import { API_PATHS } from '../utils/apipaths';
+import axiosInstance from "../utils/axiosInstance";
+import { API_PATHS } from "../utils/apipaths";
+
 
 const getDashboardData = async () => {
   try {

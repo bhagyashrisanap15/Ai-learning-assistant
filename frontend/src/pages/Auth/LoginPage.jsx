@@ -118,7 +118,7 @@ const LoginPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-2 flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 py-2.5 text-sm font-semibold text-white shadow-md hover:from-emerald-600 hover:to-emerald-700 transition disabled:opacity-60"
+            className="w-full mt-2 flex items-center justify-center gap-2 rounded-lg bg-linear-to-br from-emerald-500 to-emerald-600 py-2.5 text-sm font-semibold text-white shadow-md hover:from-emerald-600 hover:to-emerald-700 transition disabled:opacity-60"
           >
             {loading ? "Signing in..." : <>Sign in <ArrowRight size={16} /></>}
           </button>
