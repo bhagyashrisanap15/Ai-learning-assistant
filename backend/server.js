@@ -5,13 +5,20 @@
  import cors from 'cors';
  import path from 'path';
  import { fileURLToPath } from 'url';
- import connectDB from './config/db.js'
+ import connectDB from './config/db.js';
  import errorHandler from './middleware/errorHandler.js';
+<<<<<<< HEAD
  import authRoutes from './routes/authRoutes.js'
  import documentRoutes from './routes/documentRoutes.js'
  import flashcardRoutes from './routes/flashcardRoutes.js'
  import quizeRoutes from './routes/quizRoutes.js'
  import progressRoutes from './routes/progressRoutes.js'
+=======
+ import authRoutes from './routes/authRoutes.js';
+import documentRoutes from './routes/documentRoutes.js';
+  
+import aiRoutes from './routes/aiRoutes.js'
+>>>>>>> 09a896c (add files)
 
 
  const _filename = fileURLToPath(import.meta.url);
@@ -36,11 +43,17 @@
  app.use('/uploads',express.static(path.join(_dirname,'uploads')));
 
 
+<<<<<<< HEAD
  app.use('/api/auth',authRoutes)
  app.use('/api/documents',documentRoutes)
  app.use('/api/flashcards',flashcardRoutes) 
  app.use('/api/quizzes',quizeRoutes)
  app.use('/api/progress',progressRoutes)
+=======
+  app.use('/api/auth',authRoutes)
+  app.use('/api/documents',documentRoutes)
+  app.use('/api/ai',aiRoutes)
+>>>>>>> 09a896c (add files)
 
 app.use(errorHandler);
 
