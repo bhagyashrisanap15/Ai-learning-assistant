@@ -8,8 +8,9 @@
  import connectDB from './config/db.js'
  import errorHandler from './middleware/errorHandler.js';
  import authRoutes from './routes/authRoutes.js'
-  import documentRoutes from './routes/documentRoutes.js'
-
+ import documentRoutes from './routes/documentRoutes.js'
+ import flashcardRoutes from './routes/flashcardRoutes.js'
+ import quizeRoutes from './routes/quizRoutes.js'
 
  const _filename = fileURLToPath(import.meta.url);
  const _dirname = path.dirname(_filename);
@@ -34,7 +35,9 @@
 
 
  app.use('/api/auth',authRoutes)
-  app.use('/api/documents',documentRoutes)
+ app.use('/api/documents',documentRoutes)
+ app.use('/api/flashcards',flashcardRoutes) 
+app.use('/api/quizzes',quizeRoutes)
 
 app.use(errorHandler);
 
