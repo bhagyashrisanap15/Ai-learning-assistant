@@ -42,8 +42,8 @@ routes.post('/register',registerValidation, register);
 routes.post('/login', loginValidation, login);
 
 
-router.get('/profile',Protect,getprofile);
-router.get('/profile',Protect,updateProfile);
-router.post('/change-password',Protect,changePassword);
+routes.get('/profile',Protect,getprofile);
+routes.get('/profile',Protect,updateProfile);
+routes.post('/change-password',Protect,changePassword);
 
-export default router;
+export default routes;

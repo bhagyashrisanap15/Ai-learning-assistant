@@ -1,4 +1,4 @@
-import Quiz from "../models/ChatHistoryQuiz.js";
+import Quiz from "../models/Quiz.js";
 
 export const getQuizzes = async (req, res, next) => {
   try {

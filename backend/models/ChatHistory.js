@@ -14,7 +14,7 @@ const chatHistorySchema = new mongoose.Schema ({
     message:[{
         role:{
             type:String,
-            enum:['uers','assistant'],
+            enum:['user','assistant'],
             required:true
         },
         content:{
