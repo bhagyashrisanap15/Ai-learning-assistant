@@ -16,11 +16,11 @@ import ProfilePage from "./pages/Profile/ProfilePage";
 import NotFoundPage from "./pages/quizzes/NotFoundPage";
 
 import ProtectedRoute from "./components/auth/protectedRoute";
+import { useAuth } from "./context/AuthContext";
 
 const App = () => {
-  const isAuthenticated = false; // replace with real auth later
-  const loading = false
-
+  const {isAuthenticated, loading} = useAuth()
+  
   if(loading) {
     return(
       <div classname ="flex item-center justify-center h-screen">
