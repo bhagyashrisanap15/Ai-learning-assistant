@@ -6,10 +6,8 @@ import RegisterPage from "./pages/Auth/RegisterPage";
 import DashboardPage from "./pages/Dashboard/Dashboard";
 import DocumentListPage from "./pages/documents/DocumentListPage";
 import DocumentDetailPage from "./pages/documents/DocumentDetailPage";
-
 import FlashCardList from "./pages/flashcards/FlashCardList";
 import FlashCard from "./pages/flashcards/FlashCard";
-
 import QuizTakePage from "./pages/quizzes/QuizTake";
 import QuizResultPage from "./pages/quizzes/QuizResult";
 import ProfilePage from "./pages/Profile/ProfilePage";
