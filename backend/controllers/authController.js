@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
+// ================= TOKEN =================
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE || "7d",
@@ -8,7 +9,7 @@ const generateToken = (id) => {
 };
 
 // ================= REGISTER =================
-export const register = async (req, res, next) => {
+export const register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
@@ -57,7 +58,7 @@ export const register = async (req, res, next) => {
     console.error("REGISTER ERROR:", error);
     res.status(500).json({
       success: false,
-      error: error.message,
+      error: error.message || "Server error"
     });
   }
 };

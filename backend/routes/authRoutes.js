@@ -22,7 +22,7 @@ const registerValidation = [
         .withMessage('please enter valid email'),
     body('password')
         .isLength({ min:6 })
-        .withMessage('password must be at least 9 character'),
+        .withMessage('password must be at least 6 character'),
 
 ];
 
@@ -43,7 +43,7 @@ routes.post('/login', loginValidation, login);
 
 
 routes.get('/profile',Protect,getprofile);
-routes.get('/profile',Protect,updateProfile);
+routes.put('/profile',Protect,updateProfile);
 routes.post('/change-password',Protect,changePassword);
 
 export default routes;

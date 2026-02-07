@@ -18,16 +18,27 @@ const Register = () => {
     setError("");
 
     if (password.length < 6) {
-      return setError("Password must be at least 6 characters");
+      setError("Password must be at least 6 characters");
+      return;
     }
 
     setLoading(true);
+
     try {
-      await authService.register({ username, email, password });
-      toast.success("Account created successfully");
-      navigate("/login");
+      // ✅ FIXED CALL
+      const res = await authService.register(username, email, password);
+
+      console.log("REGISTER RESPONSE:", res);
+
+      if (res.success) {
+        toast.success("Account created successfully");
+        navigate("/login");
+      } else {
+        setError(res.error || "Registration failed");
+      }
     } catch (err) {
-      setError(err.message || "Registration failed");
+      console.error("REGISTER ERROR:", err);
+      setError(err.error || err.message || "Registration failed");
     } finally {
       setLoading(false);
     }
@@ -64,7 +75,6 @@ const Register = () => {
               <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
-                placeholder="John"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
@@ -82,7 +92,6 @@ const Register = () => {
               <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="email"
-                placeholder="john@timetoaprogram.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -100,7 +109,6 @@ const Register = () => {
               <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="password"
-                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -130,9 +138,6 @@ const Register = () => {
           </Link>
         </p>
 
-        <p className="text-[11px] text-slate-400 text-center mt-3">
-          By continuing you agree to our Terms & Privacy Policy
-        </p>
       </div>
     </div>
   );
