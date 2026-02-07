@@ -10,7 +10,7 @@ import {
   Clock,
 } from "lucide-react";
 
-const DashboardPage = () => {
+const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -183,4 +183,4 @@ const DashboardPage = () => {
   );
 };
 
-export default DashboardPage;
+export default Dashboard;
