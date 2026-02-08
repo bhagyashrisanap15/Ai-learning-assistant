@@ -26,7 +26,12 @@ const Register = () => {
 
     try {
       // ✅ FIXED CALL
-      const res = await authService.register(username, email, password);
+      const res = await authService.register({
+        username,
+        email,
+        password,
+      });
+
 
       console.log("REGISTER RESPONSE:", res);
 

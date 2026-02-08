@@ -55,11 +55,11 @@ const AIActions = () => {
 
   return (
     <>
-      <div className="max-w-4xl mx-5 py-5 bg-gradient-to-br from-slate-50/50 to-white rounded-2xl backdrop-blur-xl border border-slate-200/60 shadow-sm space-y-6">
+      <div className="max-w-4xl mx-5 py-5 bg-linear-to-br from-slate-50/50 to-white rounded-2xl backdrop-blur-xl border border-slate-200/60 shadow-sm space-y-6">
         {/* Header */}
         <div className="px-5 py-5 border-b border-slate-200/60">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -75,7 +75,7 @@ const AIActions = () => {
 
         <div className="p-6 space-y-6">
           {/* Generate Summary */}
-          <div className="p-5 bg-gradient-to-br from-slate-50/50 to-white rounded-xl hover:shadow-md transition-all">
+          <div className="p-5 bg-linear-to-br from-slate-50/50 to-white rounded-xl hover:shadow-md transition-all">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
@@ -94,7 +94,7 @@ const AIActions = () => {
               <button
                 onClick={handleGenerateSummary}
                 disabled={loadingAction === "summary"}
-                className="h-11 px-5 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white font-medium rounded-xl shadow-sm hover:shadow transition disabled:opacity-50"
+                className="h-11 px-5 bg-linear-to-r from-emerald-600 to-emerald-500 text-white font-medium rounded-xl shadow-sm hover:shadow transition disabled:opacity-50"
               >
                 {loadingAction === "summary" ? "Loading..." : "Summarize"}
               </button>
@@ -102,7 +102,7 @@ const AIActions = () => {
           </div>
 
           {/* Explain Concept */}
-          <div className="p-5 bg-gradient-to-br from-slate-50/50 to-white rounded-xl hover:shadow-md transition-all">
+          <div className="p-5 bg-linear-to-br from-slate-50/50 to-white rounded-xl hover:shadow-md transition-all">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
@@ -133,7 +133,7 @@ const AIActions = () => {
                     disabled={
                       loadingAction === "explain" || !concept.trim()
                     }
-                    className="h-11 px-5 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white font-medium rounded-xl shadow-sm hover:shadow transition disabled:opacity-50"
+                    className="h-11 px-5 bg-linear-to-r from-emerald-600 to-emerald-500 text-white font-medium rounded-xl shadow-sm hover:shadow transition disabled:opacity-50"
                   >
                     {loadingAction === "explain" ? "Loading..." : "Explain"}
                   </button>

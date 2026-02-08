@@ -1,49 +1,62 @@
-import express from 'express';
-import { body } from 'express-validator';
+import express from "express";
+import { body, validationResult } from "express-validator";
 import {
-    register,
-    login,
-    getprofile,
-    updateProfile,
-    changePassword
-} from '../controllers/authController.js';
-import Protect from '../middleware/auth.js';
+  register,
+  login,
+  getprofile,
+  updateProfile,
+  changePassword,
+} from "../controllers/authController.js";
+import protect from "../middleware/auth.js";
 
-const routes = express.Router();
+const router = express.Router();
 
+// 🔹 VALIDATION HANDLER (THIS WAS MISSING)
+const validate = (req, res, next) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      error: errors.array()[0].msg,
+    });
+  }
+
+  next();
+};
+
+// ================= REGISTER =================
 const registerValidation = [
-    body('username')
-        .trim()
-        .isLength({ min:3 })
-        .withMessage('Username must be at least 3 characters'),
-    body('email')
-        .isEmail()
-        .normalizeEmail()
-        .withMessage('please enter valid email'),
-    body('password')
-        .isLength({ min:6 })
-        .withMessage('password must be at least 6 character'),
-
+  body("username")
+    .trim()
+    .isLength({ min: 3 })
+    .withMessage("Username must be at least 3 characters"),
+  body("email")
+    .isEmail()
+    .normalizeEmail()
+    .withMessage("Please enter a valid email"),
+  body("password")
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters"),
 ];
 
+// ================= LOGIN =================
 const loginValidation = [
-     body('email')
-        .isEmail()
-        .normalizeEmail()
-        .withMessage('please enter valid email'),
-    body('password')
-        .notEmpty()
-        .withMessage('password is required')
-
-
+  body("email")
+    .isEmail()
+    .normalizeEmail()
+    .withMessage("Please enter a valid email"),
+  body("password")
+    .notEmpty()
+    .withMessage("Password is required"),
 ];
 
-routes.post('/register',registerValidation, register);
-routes.post('/login', loginValidation, login);
+// ✅ FIXED ROUTES
+router.post("/register", registerValidation, validate, register);
+router.post("/login", loginValidation, validate, login);
 
+router.get("/profile", protect, getprofile);
+router.put("/profile", protect, updateProfile);
+router.post("/change-password", protect, changePassword);
 
-routes.get('/profile',Protect,getprofile);
-routes.put('/profile',Protect,updateProfile);
-routes.post('/change-password',Protect,changePassword);
-
-export default routes;
+export default router;

@@ -1,47 +1,44 @@
-import mongoose, { Mongoose } from "mongoose";
-import bcrypt from 'bcryptjs';
-import { PasswordException } from "pdf-parse";
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema(
   {
     username: {
       type: String,
-      required: [true, "Please provide a username"],
-      unique: true,
+      required: true,
       trim: true,
-      minlength: [3, "Username must be at least 3 characters"],
     },
     email: {
       type: String,
-      required: [true, "Please provide an email"],
+      required: true,
       unique: true,
       lowercase: true,
-      match: [/^\S+@\S+\.\S+$/, "Please provide a valid email"],
     },
     password: {
       type: String,
-      required: [true, "Please provide a password"],
-      minlength: [6, "Password must be at least 6 characters"],
+      required: true,
+      minlength: 6,
       select: false,
     },
     profileImage: {
       type: String,
-      default: null,
+      default: "",
     },
   },
   { timestamps: true }
 );
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+// 🔐 HASH PASSWORD (CORRECT)
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
 
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
+  this.password = await bcrypt.hash(this.password, 10);
 });
 
+// 🔑 MATCH PASSWORD
 userSchema.methods.matchPassword = async function (enteredPassword) {
-  return bcrypt.compare(enteredPassword, this.password);
+  return await bcrypt.compare(enteredPassword, this.password);
 };
 
-export default mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+export default User;

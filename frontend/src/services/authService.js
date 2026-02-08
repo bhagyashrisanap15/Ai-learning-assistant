@@ -13,19 +13,25 @@ const login = async (email, password) => {
   }
 };
 
-const register = async ({ username, email, password }) => {
+const register = async (data) => {
   try {
+    console.log("REGISTER PAYLOAD:", data);
+
     const response = await axiosInstance.post(
       API_PATHS.AUTH.REGISTER,
-      { username, email, password }
+      {
+        username: data.username,
+        email: data.email,
+        password: data.password,
+      }
     );
+
     return response.data;
   } catch (error) {
     console.error("REGISTER ERROR:", error.response?.data);
     throw error.response?.data || { message: "Server error" };
   }
 };
-
 
 const getProfile = async () => {
   try {
