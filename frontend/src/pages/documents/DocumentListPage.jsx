@@ -128,7 +128,7 @@ const DocumentListPage = () => {
                 {documents.map((doc) => (
                     <DocumentCard
                         key={doc._id}
-                        documents={doc}
+                        document={doc}
                         onDelete={handleDeleteRequest}
                     />
                 ))}
@@ -159,113 +159,118 @@ const DocumentListPage = () => {
             </div>
 
          {/* Modal Header */}
-     {isUploadModalOpen && ( <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xl">
-        <div className="relative w-full max-w-lg bg-white/95 border border-slate-200/50 rounded-2xl shadow-2xl">
-          {/* Close button */}
-          <button
-            onClick={() => setIsUploadModalOpen(false)}
-            className="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-lg bg-slate-50/50 hover:text-slate-400 hover:text-slate-600"
-          >
-            <X className="w-5 h-5" strokeWidth={2} />
-          </button>
+     {isUploadModalOpen && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xl">
+    <div className="relative w-full max-w-lg bg-white/95 border border-slate-200/50 rounded-2xl shadow-2xl">
 
-          {/* Modal Header */}
-          <div className="mb-6 p-6">
-            <h2 className="text-xl font-medium text-slate-900 tracking-tight">
-              Upload New Document
-            </h2>
-            <p className="text-sm text-slate-500 mt-1">
-              Add a PDF document to your library
-            </p>
-          </div>
+      {/* Close button */}
+      <button
+        onClick={() => setIsUploadModalOpen(false)}
+        className="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-lg bg-slate-50 hover:bg-slate-100"
+      >
+        <X className="w-5 h-5" strokeWidth={2} />
+      </button>
 
-          {/* Form */}
-          <form onSubmit={handleUpload} className="space-y-5 px-6">
-            {/* Title Input */}
-            <div className="space-y-2">
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wide">
-                Document Title
-              </label>
-              <input
-                type="text"
-                value={uploadTitle}
-                onChange={(e) => setUploadTitle(e.target.value)}
-                required
-                className="w-full h-12 px-4 border-2 border-slate-200 rounded-xl bg-slate-50/50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white transition-colors"
-                placeholder="e.g., React Interview Prep"
-              />
-            </div>
+      {/* Header */}
+      <div className="mb-6 p-6">
+        <h2 className="text-xl font-medium text-slate-900">
+          Upload New Document
+        </h2>
+        <p className="text-sm text-slate-500 mt-1">
+          Add a PDF document to your library
+        </p>
+      </div>
 
-            {/* File Upload */}
-            <div className="space-y-2">
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wide">
-                PDF File
-              </label>
-              <div className="relative border-2 border-dashed border-slate-300 rounded-xl bg-slate-50/50 hover:border-emerald-300 transition-colors">
-                <input
-                  id="file-upload"
-                  type="file"
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                  onChange={handleFileChange}
-                  accept=".pdf"
-                />
-                <div className="flex flex-col items-center justify-center py-10 px-6">
-                  <div className="w-14 h-14 rounded-xl bg-linear-to-r from-emerald-100 to-teal-100 flex items-center justify-center mb-4">
-                    <Upload
-                      className="w-7 h-7 text-emerald-600"
-                      strokeWidth={2}
-                    />
-                  </div>
-                  {uploadFile ? (
-                    <p className="text-sm font-medium text-emerald-600">
-                      {uploadFile.name}
-                    </p>
-                  ) : (
-                    <>
-                      <span className="text-emerald-600 font-medium">
-                        Click to upload
-                      </span>
-                      <span className="text-slate-500 text-sm">
-                        {" "}or drag and drop
-                      </span>
-                      <p className="text-xs text-slate-500 mt-1">
-                        PDF up to 10MB
-                      </p>
-                    </>
-                  )}
-                </div>
+      {/* FORM START */}
+      <form onSubmit={handleUpload} className="space-y-5 px-6 pb-6">
+
+        {/* Title Input */}
+        <div className="space-y-2">
+          <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wide">
+            Document Title
+          </label>
+          <input
+            type="text"
+            value={uploadTitle}
+            onChange={(e) => setUploadTitle(e.target.value)}
+            required
+            className="w-full h-12 px-4 border-2 border-slate-200 rounded-xl bg-slate-50 text-slate-900 focus:outline-none focus:border-emerald-500 focus:bg-white transition-colors"
+            placeholder="e.g., React Interview Prep"
+          />
+        </div>
+
+        {/* File Upload */}
+        <div className="space-y-2">
+          <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wide">
+            PDF File
+          </label>
+
+          <div className="relative border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 hover:border-emerald-300 transition-colors">
+            <input
+              type="file"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              onChange={handleFileChange}
+              accept=".pdf"
+              required
+            />
+
+            <div className="flex flex-col items-center justify-center py-10 px-6">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-r from-emerald-100 to-teal-100 flex items-center justify-center mb-4">
+                <Upload className="w-7 h-7 text-emerald-600" />
               </div>
-            </div>
-          </form>
 
-          {/* Action Buttons */}
-          <div className="flex gap-3 pt-2 px-6 pb-6">
-            <button
-              type="button"
-              onClick={() => setIsUploadModalOpen(false)}
-              disabled={uploading}
-              className="flex-1 h-11 px-4 border-2 border-slate-200 rounded-xl bg-white text-slate-900 font-medium hover:bg-slate-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={uploading}
-              className="flex-1 h-11 px-4 bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-medium rounded-xl transition-colors disabled:opacity-50"
-            >
-              {uploading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Uploading...
-                </span>
+              {uploadFile ? (
+                <p className="text-sm font-medium text-emerald-600">
+                  {uploadFile.name}
+                </p>
               ) : (
-                "Upload"
+                <>
+                  <span className="text-emerald-600 font-medium">
+                    Click to upload
+                  </span>
+                  <p className="text-xs text-slate-500 mt-1">
+                    PDF up to 10MB
+                  </p>
+                </>
               )}
-            </button>
+            </div>
           </div>
         </div>
-      </div>
-    )}
+
+        {/* ACTION BUTTONS INSIDE FORM */}
+        <div className="flex gap-3 pt-4">
+          <button
+            type="button"
+            onClick={() => setIsUploadModalOpen(false)}
+            disabled={uploading}
+            className="flex-1 h-11 px-4 border-2 border-slate-200 rounded-xl bg-white text-slate-900 font-medium hover:bg-slate-50 transition-colors"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            disabled={uploading}
+            className="flex-1 h-11 px-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-medium rounded-xl transition-colors disabled:opacity-50"
+          >
+            {uploading ? (
+              <span className="flex items-center justify-center gap-2">
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Uploading...
+              </span>
+            ) : (
+              "Upload"
+            )}
+          </button>
+        </div>
+
+      </form>
+      {/* FORM END */}
+
+    </div>
+  </div>
+)}
+
        
        
      {/* Delete Confirmation Modal */}
