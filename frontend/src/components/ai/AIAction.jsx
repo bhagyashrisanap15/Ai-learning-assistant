@@ -5,7 +5,7 @@ import aiService from "../../services/aiService";
 import toast from "react-hot-toast";
 import MarkdownRenderer from "../common/MarkdownRenderer";
 
-const AIActions = () => {
+const AIAction = () => {
   const { id: documentId } = useParams();
 
   const [loadingAction, setLoadingAction] = useState(null);
@@ -167,4 +167,4 @@ const AIActions = () => {
   );
 };
 
-export default AIActions;
+export default AIAction;

@@ -1,58 +1,80 @@
-import axiosInstance from '../utils/axiosInstance';
-import { API_PATHS } from '../utils/apipaths';
-import authService from './authService';
+import axiosInstance from "../utils/axiosInstance";
+import { API_PATHS } from "../utils/apipaths";
 
-const generateFlashcards = async (documentId, options) => {
+// Generate Flashcards
+const generateFlashcards = async (documentId, options = {}) => {
   try {
-    const response = await axiosInstance.post(API_PATHS.AI.GENERATE_FLASHCARDS, { documentId, ...options });
+    const response = await axiosInstance.post(
+      API_PATHS.AI.GENERATE_FLASHCARDS,
+      { documentId, ...options }
+    );
     return response.data;
   } catch (error) {
-    throw error.response?.data || { message: 'Failed to generate flashcards' };
+    throw error.response?.data || { message: "Failed to generate flashcards" };
   }
 };
 
-const generateQuiz = async (documentId, options) => {
+// Generate Quiz
+const generateQuiz = async (documentId, options = {}) => {
   try {
-    const response = await axiosInstance.post(API_PATHS.AI.GENERATE_QUIZ, { documentId, ...options });
+    const response = await axiosInstance.post(
+      API_PATHS.AI.GENERATE_QUIZ,
+      { documentId, ...options }
+    );
     return response.data;
   } catch (error) {
-    throw error.response?.data || { message: 'Failed to generate quiz' };
+    throw error.response?.data || { message: "Failed to generate quiz" };
   }
 };
 
+// Generate Summary
 const generateSummary = async (documentId) => {
   try {
-    const response = await axiosInstance.post(API_PATHS.AI.GENERATE_SUMMARY, { documentId });
+    const response = await axiosInstance.post(
+      API_PATHS.AI.GENERATE_SUMMARY,
+      { documentId }
+    );
     return response.data?.data;
   } catch (error) {
-    throw error.response?.data || { message: 'Failed to generate summary' };
+    throw error.response?.data || { message: "Failed to generate summary" };
   }
 };
 
+// Chat
 const chat = async (documentId, message) => {
   try {
-    const response = await axiosInstance.post(API_PATHS.AI.CHAT, { documentId, question: message }); // Removed history from payload
+    const response = await axiosInstance.post(
+      API_PATHS.AI.CHAT,
+      { documentId, question: message }
+    );
     return response.data;
   } catch (error) {
-    throw error.response?.data || { message: 'Chat request failed' };
+    throw error.response?.data || { message: "Chat request failed" };
   }
 };
 
+// Explain Concept
 const explainConcept = async (documentId, concept) => {
   try {
-    const response = await axiosInstance.post(API_PATHS.AI.EXPLAIN_CONCEPT, { documentId, concept });
+    const response = await axiosInstance.post(
+      API_PATHS.AI.EXPLAIN_CONCEPT,
+      { documentId, concept }
+    );
     return response.data?.data;
   } catch (error) {
-    throw error.response?.data || { message: 'Failed to explain concept' };
+    throw error.response?.data || { message: "Failed to explain concept" };
   }
 };
 
+// Get Chat History
 const getChatHistory = async (documentId) => {
   try {
-    const response = await axiosInstance.get(API_PATHS.AI.GET_CHAT_HISTORY(documentId));
+    const response = await axiosInstance.get(
+      API_PATHS.AI.GET_CHAT_HISTORY(documentId)
+    );
     return response.data;
   } catch (error) {
-    throw error.response?.data || { message: 'Failed to fetch chat history' };
+    throw error.response?.data || { message: "Failed to fetch chat history" };
   }
 };
 
@@ -65,4 +87,4 @@ const aiService = {
   getChatHistory,
 };
 
-export default authService;
+export default aiService;
