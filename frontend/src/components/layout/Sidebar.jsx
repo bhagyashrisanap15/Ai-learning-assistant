@@ -29,23 +29,28 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
 
   return (
     <>
-      {/* Overlay (mobile) */}
+      {/* Overlay (mobile only) */}
       <div
         className={`fixed inset-0 bg-black/30 z-40 md:hidden transition-opacity duration-300 ${
           isSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={toggleSidebar}
-        aria-hidden="true"
       />
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-slate-200 z-50
-        transition-transform duration-300 ease-in-out
-        ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
-        md:translate-x-0 md:static md:flex md:flex-col`}
+        className={`
+          w-64 bg-white border-r border-slate-200 z-50
+          flex flex-col flex-shrink-0
+          transition-transform duration-300 ease-in-out
+
+          fixed inset-y-0 left-0
+          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+
+          md:relative md:translate-x-0
+        `}
       >
-        {/* Header */}
+        {/* Logo / Header */}
         <div className="flex items-center justify-between h-16 px-5 border-b border-slate-200">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 shadow-md">
@@ -73,7 +78,9 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
               <NavLink
                 key={link.to}
                 to={link.to}
-                onClick={toggleSidebar}
+                onClick={() => {
+                  if (window.innerWidth < 768) toggleSidebar();
+                }}
                 className={({ isActive }) =>
                   `group flex items-center gap-3 px-4 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200
                   ${
@@ -83,18 +90,12 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
                   }`
                 }
               >
-                {({ isActive }) => (
-                  <>
-                    <Icon
-                      size={18}
-                      strokeWidth={2.5}
-                      className={`transition-transform duration-200 ${
-                        isActive ? "" : "group-hover:scale-110"
-                      }`}
-                    />
-                    {link.text}
-                  </>
-                )}
+                <Icon
+                  size={18}
+                  strokeWidth={2.5}
+                  className="transition-transform duration-200 group-hover:scale-110"
+                />
+                {link.text}
               </NavLink>
             );
           })}

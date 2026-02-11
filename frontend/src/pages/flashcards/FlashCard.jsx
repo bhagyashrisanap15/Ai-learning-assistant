@@ -8,4 +8,4 @@ const FlashCard = () => {
   );
 };
 
-export default FlashCard;
+export default  FlashCard;
