@@ -18,6 +18,7 @@ const AppLayout = () => {
 
       {/* Main Content Area */}
       <div className="flex flex-col flex-1 overflow-hidden">
+
         {/* Header */}
         <Header toggleSidebar={toggleSidebar} />
 

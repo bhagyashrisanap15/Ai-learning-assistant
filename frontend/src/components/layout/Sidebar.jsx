@@ -31,25 +31,27 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
     <>
       {/* Overlay (mobile only) */}
       <div
-        className={`fixed inset-0 bg-black/30 z-40 md:hidden transition-opacity duration-300 ${
-          isSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
+        className={`fixed inset-0 bg-black/30 z-40 md:hidden transition-opacity duration-300 ${isSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
         onClick={toggleSidebar}
       />
 
       {/* Sidebar */}
-      <aside
-        className={`
-          w-64 bg-white border-r border-slate-200 z-50
-          flex flex-col flex-shrink-0
-          transition-transform duration-300 ease-in-out
+    <aside
+  className={`
+    w-64 bg-white border-r border-slate-200
+    flex flex-col flex-shrink-0
 
-          fixed inset-y-0 left-0
-          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+    fixed inset-y-0 left-0 z-50
+    transform transition-transform duration-300 ease-in-out
+    ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
 
-          md:relative md:translate-x-0
-        `}
-      >
+    md:static md:translate-x-0
+  `}
+>
+
+
+
         {/* Logo / Header */}
         <div className="flex items-center justify-between h-16 px-5 border-b border-slate-200">
           <div className="flex items-center gap-3">
@@ -83,10 +85,9 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
                 }}
                 className={({ isActive }) =>
                   `group flex items-center gap-3 px-4 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200
-                  ${
-                    isActive
-                      ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md"
-                      : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+                  ${isActive
+                    ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md"
+                    : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
                   }`
                 }
               >
