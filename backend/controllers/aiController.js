@@ -5,7 +5,6 @@ import ChatHistory from '../models/ChatHistory.js';
 import * as geminiService from "../utils/geminiService.js";
 import { findRelevantChunks } from '../utils/textChunker.js';
 
-
 /* =========================================================
    GENERATE FLASHCARDS
 ========================================================= */
@@ -165,38 +164,42 @@ export const generateSummary = async (req, res, next) => {
 ========================================================= */
 export const chat = async (req, res, next) => {
   try {
-    console.log("CHAT BODY:", req.body);
-
     const { documentId, question } = req.body;
 
     if (!documentId || !question) {
       return res.status(400).json({
         success: false,
-        error: 'Please provide documentId and question',
+        error: "Please provide documentId and question",
       });
     }
 
     const document = await Document.findOne({
       _id: documentId,
       userId: req.user._id,
-      status: 'ready',
+      status: "ready",
     });
 
     if (!document) {
       return res.status(404).json({
         success: false,
-        error: 'Document not found or not ready',
+        error: "Document not found or not ready",
       });
     }
 
+    // ✅ Ensure chunks exist and are array
+    const chunks = Array.isArray(document.chunks)
+      ? document.chunks
+      : [];
+
     const relevantChunks = findRelevantChunks(
-      document.chunks,
+      chunks,
       question,
       3
     );
 
-    const chunkIndices = relevantChunks.map(
-      (c) => c.chunkIndex
+    const answer = await geminiService.chatWithContext(
+      question,
+      relevantChunks
     );
 
     let chatHistory = await ChatHistory.findOne({
@@ -212,42 +215,23 @@ export const chat = async (req, res, next) => {
       });
     }
 
-    const answer = await geminiService.chatWithContext(
-      question,
-      relevantChunks
-    );
-
     chatHistory.messages.push(
-      {
-        role: 'user',
-        content: question,
-        timestamp: new Date(),
-        relevantChunks: [],
-      },
-      {
-        role: 'assistant',
-        content: answer,
-        timestamp: new Date(),
-        relevantChunks: chunkIndices,
-      }
+      { role: "user", content: question },
+      { role: "assistant", content: answer }
     );
 
     await chatHistory.save();
 
     res.status(200).json({
       success: true,
-      data: {
-        question,
-        answer,
-        relevantChunks: chunkIndices,
-        chatHistoryId: chatHistory._id,
-      },
-      message: 'Response generated successfully',
+      data: { question, answer },
     });
   } catch (error) {
+    console.error("CHAT ERROR:", error);
     next(error);
   }
 };
+
 
 
 /* =========================================================
@@ -312,7 +296,7 @@ export const explainConcept = async (req, res, next) => {
 ========================================================= */
 export const getChatHistory = async (req, res, next) => {
   try {
-    const { documentId } = req.query;
+    const { documentId } = req.params;
 
     if (!documentId) {
       return res.status(400).json({

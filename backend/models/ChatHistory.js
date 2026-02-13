@@ -1,5 +1,29 @@
 import mongoose from "mongoose";
 
+const messageSchema = new mongoose.Schema(
+  {
+    role: {
+      type: String,
+      enum: ["user", "assistant"],
+      required: true,
+    },
+    content: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    timestamp: {
+      type: Date,
+      default: Date.now,
+    },
+    relevantChunks: {
+      type: [Number],
+      default: [],
+    },
+  },
+  { _id: false } // prevents extra _id for each message
+);
+
 const chatHistorySchema = new mongoose.Schema(
   {
     userId: {
@@ -12,31 +36,18 @@ const chatHistorySchema = new mongoose.Schema(
       ref: "Document",
       required: true,
     },
-    message: [
-      {
-        role: {
-          type: String,
-          enum: ["user", "assistant"],
-          required: true,
-        },
-        content: {
-          type: String,
-          required: true,
-        },
-        timestamp: {
-          type: Date,
-          default: Date.now,
-        },
-        relevantChunks: {
-          type: [Number],
-          default: [],
-        },
-      },
-    ],
+    messages: {
+      type: [messageSchema],
+      default: [], // ensures empty array if none
+    },
   },
   { timestamps: true }
 );
 
-chatHistorySchema.index({ userId: 1, documentId: 1 });
+// Prevent duplicate chat history for same user + document
+chatHistorySchema.index(
+  { userId: 1, documentId: 1 },
+  { unique: true }
+);
 
 export default mongoose.model("ChatHistory", chatHistorySchema);
