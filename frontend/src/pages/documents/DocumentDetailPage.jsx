@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import documentService from "../../services/documentService";
@@ -7,6 +6,10 @@ import toast from "react-hot-toast";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import PageHeader from "../../components/common/PageHeader";
 import Tabs from "../../components/common/Tabs";
+import ChatInterface from "../../components/chat/ChatInterface";
+import AIAction from "../../components/ai/AIAction";
+import FlashcardManager from "../../components/flashcards/FlashcardManager";
+import QuizManager from "../../components/quizzes/QuizManager";
 
 const DocumentDetailPage = () => {
   const { id } = useParams();
@@ -38,7 +41,6 @@ const DocumentDetailPage = () => {
 
     const filePath = documentData.data.filePath;
 
-    // If already a full URL
     if (
       filePath.startsWith("http://") ||
       filePath.startsWith("https://")
@@ -53,10 +55,6 @@ const DocumentDetailPage = () => {
   };
 
   const renderContent = () => {
-    if (loading) {
-      return <Spinner />;
-    }
-
     if (!documentData?.data?.filePath) {
       return <div>PDF not available.</div>;
     }
@@ -92,55 +90,56 @@ const DocumentDetailPage = () => {
     );
   };
 
-  const renderChat = () => {
-    return <ChatInterface/>
-  };
+  const renderChat = () => <ChatInterface documentId={id} />;
 
-  const renderAIActions = () => {
-    return <AIAction />
-  };
-  
-  const renderFlashcardsTab = () => {
-    return <FlashcardManager documentId={id}/>
-  };
+  const renderAIActions = () => <AIAction documentId={id} />;
 
-  const renderQuizzesTab = () => {
+  const renderFlashcardsTab = () => (
+    <FlashcardManager documentId={id} />
+  );
 
-    return <QuizManager documentId={id} />
-  };
+  const renderQuizzesTab = () => (
+    <QuizManager documentId={id} />
+  );
 
   const tabs = [
-    {name: 'Content', label:'Content',content:renderContent()},
-    {name: 'Chat', label:'Chat',content:renderChat()},
-    {name: 'AI Actions', label:'AI Actions',content:renderAIActions()},
-    {name: 'Flashcards', label:'Flashcards',content:renderFlashcardsTab()},
-    {name: 'Quizzes', label:'Quizzes',content:renderQuizzesTab()},
+    { name: "Content", label: "Content", content: renderContent() },
+    { name: "Chat", label: "Chat", content: renderChat() },
+    { name: "AI Actions", label: "AI Actions", content: renderAIActions() },
+    { name: "Flashcards", label: "Flashcards", content: renderFlashcardsTab() },
+    { name: "Quizzes", label: "Quizzes", content: renderQuizzesTab() },
   ];
 
-  if(loading){
-    return <Spinner/>;
+  // ✅ Global loading state
+  if (loading) {
+    return <Spinner />;
   }
 
-  if(!document){
-    return <div className="">Document not found.</div>
+  // ✅ Proper document existence check
+  if (!documentData?.data) {
+    return <div>Document not found.</div>;
   }
-  
+
   return (
     <div>
-        <div className="mb-4">
-            <Link to="/documents" className="inline">
-            <ArrowLeft size={16}/>
-            Back to Documents
-            </Link>
-            <div>
-                <PageHeader title={document.data.title}/>
-                <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab}/>
-            </div>
+      <div className="mb-4">
+        <Link to="/documents" className="inline flex items-center gap-2">
+          <ArrowLeft size={16} />
+          Back to Documents
+        </Link>
+
+        <div className="mt-4">
+          <PageHeader title={documentData.data.title} />
+
+          <Tabs
+            tabs={tabs}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+          />
         </div>
+      </div>
     </div>
-   
   );
 };
 
-export default DocumentDetailPage
- 
+export default DocumentDetailPage;

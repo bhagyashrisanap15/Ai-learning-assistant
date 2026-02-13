@@ -72,7 +72,8 @@ const DocumentListPage = () => {
         }
     };
 
-    const handleDeleteRequest = (doc) => {
+    const handleDeleteRequest = (docId) => {
+        const doc = documents.find(d => d._id === docId);
         setSelectedDoc(doc);
         setIsDeleteModalOpen(true);
     };
@@ -275,7 +276,7 @@ const DocumentListPage = () => {
        
      {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xl border border-slate-700/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xl">
           <div className="relative w-full max-w-md bg-white/95 backdrop-blur-xl border border-slate-200 rounded-xl shadow-lg">
             {/* Close button */}
             <button
@@ -288,7 +289,7 @@ const DocumentListPage = () => {
             {/* Modal Content */}
             <div className="p-6">
               {/* Icon */}
-              <div className="w-12 h-12 rounded-xl bg-linear-to-r from-red-100 to-red-200 flex items-center justify-center mb-6">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-red-100 to-red-200 flex items-center justify-center mb-6">
                 <Trash2 className="w-6 h-6 text-red-600" strokeWidth={2} />
               </div>
 
@@ -319,7 +320,7 @@ const DocumentListPage = () => {
                 <button
                   onClick={handleConfirmDelete}
                   disabled={deleting}
-                  className="flex-1 h-11 px-4 bg-linear-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium rounded-xl transition-colors disabled:opacity-50"
+                  className="flex-1 h-11 px-4 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium rounded-xl transition-colors disabled:opacity-50"
                 >
                   {deleting ? (
                     <span className="flex items-center justify-center gap-2">
@@ -340,5 +341,3 @@ const DocumentListPage = () => {
 };
 
 export default DocumentListPage;
-
-

@@ -1,101 +1,101 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FileText, Trash2, BookOpen, BrainCircuit, Clock } from 'lucide-react';
-import moment from 'moment';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  FileText,
+  Trash2,
+  BookOpen,
+  BrainCircuit,
+  Clock,
+} from "lucide-react";
+import moment from "moment";
 
 const formatFileSize = (bytes) => {
-  if (bytes === undefined || bytes === null) return 'N/A';
-  
-  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  if (!bytes) return "N/A";
+
+  const sizes = ["B", "KB", "MB", "GB"];
+  let i = 0;
   let size = bytes;
-  let unitIndex = 0;
-  
-  while (size >= 1024 && unitIndex < units.length - 1) {
+
+  while (size >= 1024 && i < sizes.length - 1) {
     size /= 1024;
-    unitIndex++;
+    i++;
   }
-  
-  return `${size.toFixed(1)} ${units[unitIndex]}`;
+
+  return `${size.toFixed(1)} ${sizes[i]}`;
 };
 
-const DocumentCard = ({
-  document, onDelete
-}) => {
-  
+const DocumentCard = ({ document, onDelete }) => {
   const navigate = useNavigate();
-  
+
+  if (!document) return null;
+
   const handleNavigate = () => {
     navigate(`/documents/${document._id}`);
   };
-  
+
   const handleDelete = (e) => {
     e.stopPropagation();
-    onDelete(document);
+    onDelete(document._id);
   };
-  
+
   return (
     <div
       onClick={handleNavigate}
-      className="group bg-white rounded-xl border border-slate-200 p-5 cursor-pointer hover:shadow-md transition relative"
+      className="group bg-white rounded-2xl border border-slate-200 p-6 cursor-pointer hover:shadow-lg transition-all duration-300 relative"
     >
-      {/* Header */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
-          <FileText className="w-5 h-5 text-slate-600" strokeWidth={2} />
+      {/* Top Section */}
+      <div className="flex justify-between items-start mb-4">
+        {/* Green File Icon */}
+        <div className="w-12 h-12 rounded-xl bg-emerald-500 flex items-center justify-center shadow-sm">
+          <FileText className="w-6 h-6 text-white" strokeWidth={2} />
         </div>
 
+        {/* Delete Button */}
         <button
           onClick={handleDelete}
           className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition"
         >
-          <Trash2 className="w-4 h-4" strokeWidth={2} />
+          <Trash2 className="w-4 h-4" />
         </button>
       </div>
 
       {/* Title */}
       <h3
-        className="font-medium text-slate-900 mb-1 truncate"
+        className="font-semibold text-slate-900 text-base truncate mb-1"
         title={document.title}
       >
         {document.title}
       </h3>
 
-      {/* File info */}
-      <div className="text-xs text-slate-500 mb-4">
-        {document.fileSize !== undefined && (
-          <span>{formatFileSize(document.fileSize)}</span>
-        )}
-      </div>
+      {/* File Size */}
+      <p className="text-sm text-slate-500 mb-4">
+        {formatFileSize(document.fileSize)}
+      </p>
 
-      {/* Stats */}
-      <div className="flex flex-wrap gap-4 text-xs text-slate-600 mb-4">
-        {document.flashcardCount !== undefined && (
-          <div className="flex items-center gap-1">
-            <BookOpen className="w-4 h-4" strokeWidth={2} />
-            <span>{document.flashcardCount} Flashcards</span>
-          </div>
-        )}
+      {/* Stats Section */}
+      <div className="flex items-center gap-3 mb-4">
+        {/* Flashcards Badge */}
+        <div className="flex items-center gap-1 bg-purple-100 text-purple-700 text-xs px-3 py-1 rounded-full">
+          <BookOpen className="w-3.5 h-3.5" />
+          {document.flashcardCount || 0} Flashcards
+        </div>
 
-        {document.quizCount !== undefined && (
-          <div className="flex items-center gap-1">
-            <BrainCircuit className="w-4 h-4" strokeWidth={2} />
-            <span>{document.quizCount} Quizzes</span>
-          </div>
-        )}
+        {/* Quizzes Badge */}
+        <div className="flex items-center gap-1 bg-emerald-100 text-emerald-700 text-xs px-3 py-1 rounded-full">
+          <BrainCircuit className="w-3.5 h-3.5" />
+          {document.quizCount || 0} Quizzes
+        </div>
       </div>
 
       {/* Footer */}
-      <div className="flex items-center gap-2 text-xs text-slate-500">
-        <Clock className="w-4 h-4" strokeWidth={2} />
-        <span>Uploaded {moment(document.createdAt).fromNow()}</span>
+      <div className="flex items-center gap-2 text-xs text-slate-400">
+        <Clock className="w-4 h-4" />
+        <span>
+          Uploaded {moment(document.createdAt).fromNow()}
+        </span>
       </div>
-
-      {/* Hover bar */}
-      <div className="absolute bottom-0 left-0 h-1 w-0 bg-slate-900 rounded-b-xl transition-all group-hover:w-full" />
     </div>
   );
 };
 
 export default DocumentCard;
-
-
