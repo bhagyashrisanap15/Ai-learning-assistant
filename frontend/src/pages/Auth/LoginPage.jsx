@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import authService from "../../services/authService";
 import { BrainCircuit, Mail, Lock, ArrowRight } from "lucide-react";
@@ -13,7 +13,11 @@ const LoginPage = () => {
   const [focusedField, setFocusedField] = useState(null);
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
+
+  // 👇 Get previous page or default to dashboard
+  const from = location.state?.from?.pathname || "/dashboard";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,9 +26,13 @@ const LoginPage = () => {
 
     try {
       const { token, user } = await authService.login(email, password);
+
       login(user, token);
+
       toast.success("Logged in successfully!");
-      navigate("/dashboard");
+
+      navigate(from, { replace: true });
+
     } catch (err) {
       setError("Invalid email or password");
       toast.error("Login failed");
@@ -35,10 +43,8 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 via-white to-slate-100 px-4">
-      
-      {/* Card */}
       <div className="w-full max-w-sm bg-white rounded-2xl shadow-lg px-8 py-10">
-        
+
         {/* Icon */}
         <div className="flex justify-center mb-4">
           <div className="h-12 w-12 rounded-xl bg-emerald-100 flex items-center justify-center">
@@ -56,7 +62,7 @@ const LoginPage = () => {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          
+
           {/* Email */}
           <div>
             <label className="block text-xs font-semibold text-slate-600 mb-1 uppercase">
@@ -79,6 +85,7 @@ const LoginPage = () => {
                 onFocus={() => setFocusedField("email")}
                 onBlur={() => setFocusedField(null)}
                 className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none"
+                required
               />
             </div>
           </div>
@@ -105,6 +112,7 @@ const LoginPage = () => {
                 onFocus={() => setFocusedField("password")}
                 onBlur={() => setFocusedField(null)}
                 className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none"
+                required
               />
             </div>
           </div>
@@ -135,6 +143,7 @@ const LoginPage = () => {
         <p className="text-[11px] text-slate-400 text-center mt-3">
           By continuing, you agree to our Terms & Privacy Policy
         </p>
+
       </div>
     </div>
   );

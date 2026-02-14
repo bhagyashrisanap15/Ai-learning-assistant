@@ -1,22 +1,18 @@
 import dotenv from "dotenv";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 
 dotenv.config();
 
-console.log("Loaded API KEY:", process.env.GEMINI_API_KEY);
-
 if (!process.env.GEMINI_API_KEY) {
-   throw new Error("GEMINI_API_KEY missing");
+  throw new Error("GEMINI_API_KEY missing");
 }
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
-const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-flash", // ✅ stable model
+const genAI = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY,
 });
 
 /* =========================================================
-   CHAT WITH CONTEXT (FIXED VERSION)
+   CHAT WITH CONTEXT (CORRECT NEW SDK)
 ========================================================= */
 export const chatWithContext = async (question, chunks = []) => {
   try {
@@ -43,20 +39,15 @@ If answer is not found in context, say:
 "I cannot find this in the document."
 `;
 
-    const result = await model.generateContent(prompt);
+    const response = await genAI.models.generateContent({
+      model: "gemini-1.5-flash-latest",
+      contents: prompt,
+    });
 
-    // ✅ IMPORTANT FIX
-    const response = await result.response;
-    const text = response.text();
+    return response.text;
 
-    if (!text) {
-      return "I could not generate a response.";
-    }
-
-    return text;
   } catch (error) {
     console.error("🔥 Gemini Chat Full Error:", error);
-
     return "AI service is temporarily unavailable. Please try again.";
   }
 };

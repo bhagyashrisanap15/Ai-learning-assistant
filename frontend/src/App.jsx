@@ -5,7 +5,7 @@ import LoginPage from "./pages/Auth/LoginPage";
 import RegisterPage from "./pages/Auth/RegisterPage";
 
 import AppLayout from "./components/layout/AppLayout";
-import ProtectedRoute from "./components/auth/ProtectedRoute";
+import ProtectedRoute from "./components/auth/protectedRoute";
 
 import Dashboard from "./pages/Dashboard/Dashboard";
 import DocumentListPage from "./pages/documents/DocumentListPage";
@@ -32,55 +32,50 @@ const App = () => {
       </div>
     );
   }
+return (
+  <Router>
+    <Routes>
 
-  return (
-    <Router>
-      <Routes>
-        {/* Public routes (NO layout) */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+      {/* Public Routes */}
+      <Route
+        path="/"
+        element={
+          isAuthenticated
+            ? <Navigate to="/dashboard" replace />
+            : <Navigate to="/login" replace />
+        }
+      />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
 
-        {/* Root redirect */}
-        <Route
-          path="/"
-          element={
-            isAuthenticated ? (
-              <Navigate to="/dashboard" replace />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
-
-        {/* App layout + protected routes */}
+      {/* Protected Routes */}
+      <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
-          <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} />
 
-            <Route path="/documents" element={<DocumentListPage />} />
-            <Route path="/documents/:id" element={<DocumentDetailPage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
 
-            <Route path="/flashcards" element={<FlashCardList />} />
-            <Route
-              path="/documents/:id/flashcards"
-              element={<FlashCard />}
-            />
+          <Route path="/documents" element={<DocumentListPage />} />
+          <Route path="/documents/:id" element={<DocumentDetailPage />} />
 
-            <Route path="/quizzes/:quizId" element={<QuizTake />} />
-            <Route
-              path="/quizzes/:quizId/results"
-              element={<QuizResult />}
-            />
+          <Route path="/flashcards" element={<FlashCardList />} />
+          <Route path="/documents/:id/flashcards" element={<FlashCard />} />
 
-            <Route path="/profile" element={<ProfilePage />} />
-          </Route>
+          <Route path="/quizzes/:quizId" element={<QuizTake />} />
+          <Route path="/quizzes/:quizId/results" element={<QuizResult />} />
+
+          <Route path="/profile" element={<ProfilePage />} />
+
         </Route>
+      </Route>
 
-        {/* 404 */}
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </Router>
-  );
+      {/* 404 */}
+      <Route path="*" element={<NotFoundPage />} />
+
+    </Routes>
+  </Router>
+);
+
+
 };
 
 export default App;
