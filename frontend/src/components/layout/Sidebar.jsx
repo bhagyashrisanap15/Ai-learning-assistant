@@ -9,6 +9,7 @@ import {
   BrainCircuit,
   BookOpen,
   X,
+  ListTodo, 
 } from "lucide-react";
 
 const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
@@ -24,6 +25,7 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
     { to: "/dashboard", icon: LayoutDashboard, text: "Dashboard" },
     { to: "/documents", icon: FileText, text: "Documents" },
     { to: "/flashcards", icon: BookOpen, text: "Flashcards" },
+    { to: "/todos", icon: ListTodo, text: "Todo List" }, 
     { to: "/profile", icon: User, text: "Profile" },
   ];
 

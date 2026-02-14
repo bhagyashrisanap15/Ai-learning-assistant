@@ -40,11 +40,18 @@ If answer is not found in context, say:
 `;
 
     const response = await genAI.models.generateContent({
-      model: "gemini-1.5-flash-latest",
-      contents: prompt,
+      model: "gemini-1.5-flash", // ✅ FIXED MODEL NAME
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: prompt }],
+        },
+      ],
     });
 
-    return response.text;
+    // ✅ Correct way to extract text in new SDK
+    return response.candidates?.[0]?.content?.parts?.[0]?.text || 
+           "No response generated.";
 
   } catch (error) {
     console.error("🔥 Gemini Chat Full Error:", error);

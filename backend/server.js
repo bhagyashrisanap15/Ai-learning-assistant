@@ -9,6 +9,7 @@
  import errorHandler from './middleware/errorHandler.js';
 
  import authRoutes from './routes/authRoutes.js'
+ import todoRoutes from "./routes/todoRoutes.js";
  import documentRoutes from './routes/documentRoutes.js'
  import flashcardRoutes from './routes/flashcardRoutes.js'
  import quizeRoutes from './routes/quizRoutes.js'
@@ -42,6 +43,7 @@
  app.use('/api/flashcards',flashcardRoutes) 
  app.use('/api/quizzes',quizeRoutes)
  app.use('/api/progress',progressRoutes)
+ app.use("/api/todos", todoRoutes)
  app.use('/api/ai',aiRoutes)
 
 app.use(errorHandler);

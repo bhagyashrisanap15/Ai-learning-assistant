@@ -20,6 +20,8 @@ import QuizResult from "./pages/quizzes/QuizResult";
 import ProfilePage from "./pages/Profile/ProfilePage";
 import NotFoundPage from "./pages/NotFoundPage";
 
+import TodoPage from "./pages/TodoPage";
+
 import { useAuth } from "./context/AuthContext";
 
 const App = () => {
@@ -63,6 +65,8 @@ return (
           <Route path="/quizzes/:quizId" element={<QuizTake />} />
           <Route path="/quizzes/:quizId/results" element={<QuizResult />} />
 
+          <Route path="/todos" element={<TodoPage />} />
+          
           <Route path="/profile" element={<ProfilePage />} />
 
         </Route>
