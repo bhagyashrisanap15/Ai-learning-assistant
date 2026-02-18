@@ -1,113 +1,90 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { io } from "socket.io-client";
-import { Video, Plus, Users } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Plus, Video, Trash } from "lucide-react";
+import socket from "../socket";
 
-const socket = io("http://localhost:8000");
+const API = "http://localhost:8000/api";
 
 const GroupStudy = () => {
   const [groupName, setGroupName] = useState("");
   const [groups, setGroups] = useState([]);
-  const [currentRoom, setCurrentRoom] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [selectedUsers, setSelectedUsers] = useState([]);
 
-  const localVideo = useRef();
-  const remoteVideo = useRef();
-  const peerConnection = useRef();
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
-  // Fetch groups
   useEffect(() => {
     fetchGroups();
+    fetchUsers();
   }, []);
 
   const fetchGroups = async () => {
-    const res = await axios.get("http://localhost:8000/api/groups", {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
+    const res = await axios.get(`${API}/groups`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
     setGroups(res.data);
   };
 
-  // Create Group
+  const fetchUsers = async () => {
+    const res = await axios.get(`${API}/users/all`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setUsers(res.data);
+  };
+
   const createGroup = async () => {
     await axios.post(
-      "http://localhost:8000/api/groups/create",
+      `${API}/groups/create`,
       { name: groupName },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
+      { headers: { Authorization: `Bearer ${token}` } }
     );
     setGroupName("");
     fetchGroups();
   };
 
-  // Join Group
-  const joinGroup = async (roomId) => {
-    setCurrentRoom(roomId);
-    socket.emit("joinRoom", roomId);
-
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true,
+  const addMembers = async (groupId) => {
+    for (let userId of selectedUsers) {
+      await axios.post(
+        `${API}/groups/add-member`,
+        { groupId, userId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+   socket.emit("memberAdded", {
+      groupId,
+      userId,
+      message: "You have been added to a new group!",
     });
-
-    localVideo.current.srcObject = stream;
-
-    peerConnection.current = new RTCPeerConnection();
-
-    stream.getTracks().forEach((track) => {
-      peerConnection.current.addTrack(track, stream);
-    });
-
-    peerConnection.current.ontrack = (event) => {
-      remoteVideo.current.srcObject = event.streams[0];
-    };
-
-    peerConnection.current.onicecandidate = (event) => {
-      if (event.candidate) {
-        socket.emit("ice-candidate", {
-          roomId,
-          candidate: event.candidate,
-        });
-      }
-    };
-
-    const offer = await peerConnection.current.createOffer();
-    await peerConnection.current.setLocalDescription(offer);
-
-    socket.emit("offer", { roomId, offer });
+  }
+    setSelectedUsers([]);
+    fetchGroups();
   };
 
-  // Listen signaling
-  useEffect(() => {
-    socket.on("offer", async (offer) => {
-      await peerConnection.current.setRemoteDescription(offer);
+  const removeMember = async (groupId, userId) => {
+    await axios.post(
+      `${API}/groups/remove-member`,
+      { groupId, userId },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    fetchGroups();
+  };
 
-      const answer = await peerConnection.current.createAnswer();
-      await peerConnection.current.setLocalDescription(answer);
-
-      socket.emit("answer", {
-        roomId: currentRoom,
-        answer,
-      });
+  const deleteGroup = async (groupId) => {
+    await axios.delete(`${API}/groups/delete/${groupId}`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
+    fetchGroups();
+  };
 
-    socket.on("answer", async (answer) => {
-      await peerConnection.current.setRemoteDescription(answer);
-    });
-
-    socket.on("ice-candidate", async (candidate) => {
-      await peerConnection.current.addIceCandidate(candidate);
-    });
-  }, [currentRoom]);
+  const joinGroup = (groupId) => {
+    navigate(`/video/${groupId}`);
+  };
 
   return (
     <div className="p-6 space-y-6">
       <h1 className="text-2xl font-bold">Group Study</h1>
 
-      {/* Create Group */}
       <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
         <h2 className="text-lg font-semibold flex items-center gap-2">
           <Plus size={18} /> Create Group
@@ -115,9 +92,9 @@ const GroupStudy = () => {
 
         <input
           type="text"
+          placeholder="Enter group name"
           value={groupName}
           onChange={(e) => setGroupName(e.target.value)}
-          placeholder="Enter group name"
           className="w-full p-2 border rounded-lg"
         />
 
@@ -125,52 +102,79 @@ const GroupStudy = () => {
           onClick={createGroup}
           className="bg-emerald-500 text-white px-4 py-2 rounded-lg"
         >
-          Create Group
+          Create
         </button>
       </div>
 
-      {/* Available Groups */}
-      <div className="bg-white p-6 rounded-xl shadow-md">
-        <h2 className="text-lg font-semibold flex items-center gap-2">
-          <Users size={18} /> Available Groups
-        </h2>
+      {groups.map((group) => (
+        <div key={group._id} className="bg-white p-6 rounded-xl shadow-md space-y-4">
+          <div className="flex justify-between items-center">
+            <h2 className="font-semibold text-lg">{group.name}</h2>
 
-        <div className="mt-4 space-y-3">
-          {groups.map((group) => (
-            <div
-              key={group._id}
-              className="flex justify-between items-center p-3 border rounded-lg"
-            >
-              <span>{group.name}</span>
-
+            <div className="flex gap-3">
               <button
                 onClick={() => joinGroup(group._id)}
-                className="flex items-center gap-2 bg-blue-500 text-white px-3 py-1 rounded-lg"
+                className="bg-blue-500 text-white px-3 py-1 rounded-lg"
               >
                 <Video size={16} />
-                Join
+              </button>
+
+              <button
+                onClick={() => deleteGroup(group._id)}
+                className="bg-red-500 text-white px-3 py-1 rounded-lg"
+              >
+                <Trash size={16} />
               </button>
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
 
-      {/* Video Section */}
-      {currentRoom && (
-        <div className="flex gap-4 mt-6">
-          <video
-            ref={localVideo}
-            autoPlay
-            muted
-            className="w-1/2 rounded-lg bg-black"
-          />
-          <video
-            ref={remoteVideo}
-            autoPlay
-            className="w-1/2 rounded-lg bg-black"
-          />
+          <div>
+            <h3 className="font-medium mb-2">Members:</h3>
+            {group.members?.map((member) => (
+              <div
+                key={member._id}
+                className="flex justify-between items-center border p-2 rounded-lg"
+              >
+                <span>{member.name} ({member.email})</span>
+
+                <button
+                  onClick={() => removeMember(group._id, member._id)}
+                  className="text-red-500"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex gap-2">
+            <select
+              multiple
+              size={5}
+              value={selectedUsers}
+              onChange={(e) =>
+                setSelectedUsers(
+                  Array.from(e.target.selectedOptions, (o) => o.value)
+                )
+              }
+              className="w-full p-2 border rounded-lg h-32 overflow-y-auto"
+            >
+              {users.map((user) => (
+                <option key={user._id} value={user._id}>
+                  {user.name} ({user.email})
+                </option>
+              ))}
+            </select>
+
+            <button
+              onClick={() => addMembers(group._id)}
+              className="bg-emerald-500 text-white px-3 rounded-lg"
+            >
+              Add
+            </button>
+          </div>
         </div>
-      )}
+      ))}
     </div>
   );
 };

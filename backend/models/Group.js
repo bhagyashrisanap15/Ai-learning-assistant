@@ -2,7 +2,10 @@ import mongoose from "mongoose";
 
 const groupSchema = new mongoose.Schema(
   {
-    name: String,
+    name: {
+      type: String,
+      required: true,
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -17,4 +20,6 @@ const groupSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Group", groupSchema);
+const Group = mongoose.model("Group", groupSchema);
+
+export default Group;

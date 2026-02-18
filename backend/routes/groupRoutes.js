@@ -1,26 +1,32 @@
 import express from "express";
-import Group from "../models/Group.js";
+import {
+  createGroup,
+  getGroups,
+  addMember,
+  removeMember,
+  deleteGroup,
+   joinMeeting
+} from "../controllers/groupController.js";
+
 import protect from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.post("/create", protect, async (req, res) => {
-  try {
-    const group = await Group.create({
-      name: req.body.name,
-      createdBy: req.user._id,
-      members: [req.user._id],
-    });
+// Create group
+router.post("/create", protect, createGroup);
 
-    res.json(group);
-  } catch (err) {
-    res.status(500).json({ message: "Failed to create group" });
-  }
-});
+// Get all groups
+router.get("/", protect, getGroups);
 
-router.get("/", protect, async (req, res) => {
-  const groups = await Group.find().populate("members", "name email");
-  res.json(groups);
-});
+// Add member
+router.put("/:groupId/add-member",protect, addMember);
 
-export default router;
+router.post("/:groupId/join-meeting",protect, joinMeeting);
+
+// Remove member
+router.post("/remove-member", protect, removeMember);
+
+// Delete group
+router.delete("/delete/:id", protect, deleteGroup);
+
+export default router;   // ✅ VERY IMPORTANT
