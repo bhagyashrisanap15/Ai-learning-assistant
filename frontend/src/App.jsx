@@ -22,6 +22,10 @@ import NotFoundPage from "./pages/NotFoundPage";
 
 import TodoPage from "./pages/TodoPage";
 
+import GroupStudy from "./pages/GroupStudy";
+
+import VideoCall from "./pages/VideoCall";
+
 import { useAuth } from "./context/AuthContext";
 
 const App = () => {
@@ -66,6 +70,10 @@ return (
           <Route path="/quizzes/:quizId/results" element={<QuizResult />} />
 
           <Route path="/todos" element={<TodoPage />} />
+
+          <Route path="/group-study" element={<GroupStudy />} />
+
+          <Route path="/video-call" element={<VideoCall />} />
           
           <Route path="/profile" element={<ProfilePage />} />
 
