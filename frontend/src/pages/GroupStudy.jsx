@@ -44,22 +44,24 @@ const GroupStudy = () => {
     fetchGroups();
   };
 
-  const addMembers = async (groupId) => {
+ const addMembers = async (groupId) => {
+  try {
     for (let userId of selectedUsers) {
-      await axios.post(
-        `${API}/groups/add-member`,
-        { groupId, userId },
-        { headers: { Authorization: `Bearer ${token}` } }
+      await axios.put(
+        `${API}/groups/${groupId}/members`,
+        { userId },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
-   socket.emit("memberAdded", {
-      groupId,
-      userId,
-      message: "You have been added to a new group!",
-    });
-  }
+    }
+
     setSelectedUsers([]);
     fetchGroups();
-  };
+  } catch (error) {
+    console.error("Add member error:", error.response?.data || error.message);
+  }
+};
 
   const removeMember = async (groupId, userId) => {
     await axios.post(
