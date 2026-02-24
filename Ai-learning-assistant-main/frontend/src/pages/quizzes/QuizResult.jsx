@@ -1,10 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import quizService from '../../services/quizService';
-import PageHeader from '../../components/common/PageHeader';
-import Spinner from '../../components/common/Spinner';
-import toast from 'react-hot-toast';
-import { ArrowLeft, CheckCircle2, XCircle, Trophy, Target, BookOpen } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import quizService from "../../services/quizService";
+import Spinner from "../../components/common/Spinner";
+import toast from "react-hot-toast";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  XCircle,
+  Trophy,
+  Target,
+  BookOpen,
+} from "lucide-react";
 
 const QuizResultPage = () => {
   const { quizId } = useParams();
@@ -17,7 +23,7 @@ const QuizResultPage = () => {
         const data = await quizService.getQuizResults(quizId);
         setResults(data);
       } catch (error) {
-        toast.error('Failed to fetch quiz results.');
+        toast.error("Failed to fetch quiz results.");
         console.error(error);
       } finally {
         setLoading(false);
@@ -37,206 +43,178 @@ const QuizResultPage = () => {
 
   if (!results || !results.data) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center">
-          <p className="text-slate-600 text-lg">Quiz results not found.</p>
-        </div>
+      <div className="text-center mt-10 text-slate-600">
+        Quiz results not found.
       </div>
     );
   }
 
-  const { data: { quiz, results: detailedResults } } = results;
+  const { quiz, results: detailedResults } = results.data;
+
+  const total = detailedResults.length;
+  const correct = detailedResults.filter((r) => r.isCorrect).length;
+  const incorrect = total - correct;
   const score = quiz.score;
-  const totalQuestions = detailedResults.length;
-  const correctAnswers = detailedResults.filter(r => r.isCorrect).length;
-  const incorrectAnswers = totalQuestions - correctAnswers;
-
-  const getScoreColor = (score) => {
-    if (score >= 80) return 'from-emerald-500 to-teal-500';
-    if (score >= 60) return 'from-amber-500 to-orange-500';
-    return 'from-rose-500 to-red-500';
-  };
-
-  const getScoreMessage = (score) => {
-    if (score >= 90) return 'Outstanding! 🎉';
-    if (score >= 80) return 'Great job! 🎊';
-    if (score >= 70) return 'Good work! 👏';
-    if (score >= 60) return 'Not bad! 👍';
-    return 'Keep practicing! 💪';
-  };
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="max-w-5xl mx-auto space-y-8 pb-16">
+
       {/* Back Button */}
-      <div className="mb-6">
-        <Link
-          to={`/documents/${quiz.document_id}`}
-          className="group inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-transform duration-200"
-        >
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" strokeWidth={2} />
-          Back to Document
-        </Link>
-      </div>
+      <Link
+        to={`/documents/${quiz.document?._id}`}
+        className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back to Document
+      </Link>
 
-      <PageHeader title={`${quiz.title || 'Quiz'} Results`} />
+      {/* ================= SCORE CARD ================= */}
+      <div className="bg-white border rounded-2xl shadow-md p-8 text-center">
+        <div className="flex justify-center mb-4">
+          <div className="bg-emerald-100 p-4 rounded-2xl">
+            <Trophy className="w-7 h-7 text-emerald-600" />
+          </div>
+        </div>
 
-      {/* Score Card */}
-      <div className="bg-white/80 backdrop-blur-xl border-2 border-slate-200 rounded-2xl shadow-lg p-8">
-        <div className="text-center space-y-6">
-          <div className="inline-flex items-center justify-center w-15 h-15 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50">
-            <Trophy className="w-7 h-7 text-emerald-600" strokeWidth={2} />
+        <p className="text-sm uppercase text-slate-500 mb-2">
+          Your Score
+        </p>
+
+        <h2 className="text-5xl font-bold text-rose-500">
+          {score}%
+        </h2>
+
+        <p className="mt-2 text-slate-600">
+          {score >= 60 ? "Good job!" : "Keep practicing! 💪"}
+        </p>
+
+        {/* Stats */}
+        <div className="flex justify-center gap-4 mt-6">
+          <div className="flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-xl">
+            <Target className="w-4 h-4 text-slate-600" />
+            {total} Total
           </div>
 
-          <div>
-            <p className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-2">
-              Your Score
-            </p>
-            <div className={`inline-block text-5xl font-bold bg-gradient-to-r ${getScoreColor(score)} bg-clip-text text-transparent`}>
-              {score}%
-            </div>
+          <div className="flex items-center gap-2 bg-emerald-100 text-emerald-700 px-4 py-2 rounded-xl">
+            <CheckCircle2 className="w-4 h-4" />
+            {correct} Correct
           </div>
 
-          <p className="text-lg font-medium text-slate-700">
-            {getScoreMessage(score)}
-          </p>
+          <div className="flex items-center gap-2 bg-rose-100 text-rose-700 px-4 py-2 rounded-xl">
+            <XCircle className="w-4 h-4" />
+            {incorrect} Incorrect
+          </div>
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="flex items-center justify-center gap-4 pt-4">
-        <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 border-2 border-slate-100 rounded-xl">
-          <Target className="w-5 h-5 text-slate-600" strokeWidth={2} />
-          <span className="text-sm font-medium text-slate-700">
-            {totalQuestions} Total
-          </span>
+      {/* ================= DETAILED REVIEW ================= */}
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <BookOpen className="w-5 h-5 text-slate-600" />
+          <h3 className="text-lg font-semibold">Detailed Review</h3>
         </div>
 
-        <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 border-2 border-slate-100 rounded-xl">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600" strokeWidth={2} />
-          <span className="text-sm font-medium text-slate-700">
-            {correctAnswers} Correct
-          </span>
-        </div>
+        <div className="space-y-6">
+          {detailedResults.map((item, index) => {
+            const userAnswerIndex = item.options.findIndex(
+              (opt) => opt === item.selectedAnswer
+            );
 
-        <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 border-2 border-slate-100 rounded-xl">
-          <XCircle className="w-5 h-5 text-rose-600" strokeWidth={2} />
-          <span className="text-sm font-medium text-slate-700">
-            {incorrectAnswers} Incorrect
-          </span>
-        </div>
-      </div>
+            const correctAnswerIndex =
+              item.options.findIndex(
+                (opt) => opt === item.correctAnswer
+              );
 
-      {/* Questions Review */}
-      <div className="space-y-6">
-        <div className="flex items-center gap-3 mb-2">
-          <BookOpen className="w-5 h-5 text-slate-600" strokeWidth={2} />
-          <h3 className="text-lg font-semibold text-slate-900">Detailed Review</h3>
-        </div>
+            return (
+              <div
+                key={index}
+                className="bg-white border rounded-2xl p-6 shadow-sm relative"
+              >
+                {/* Question Header */}
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <span className="text-xs bg-slate-100 px-3 py-1 rounded-full">
+                      Question {index + 1}
+                    </span>
 
-        {detailedResults.map((result, index) => {
-          const userAnswerIndex = result.options.findIndex(opt => opt === result.selectedAnswer);
-          const correctAnswerIndex = result.correctAnswer.startsWith('0')
-            ? parseInt(result.correctAnswer.substring(1)) - 1
-            : result.options.findIndex(opt => opt === result.correctAnswer);
-          const isCorrect = result.isCorrect;
+                    <h4 className="mt-2 font-semibold text-slate-900">
+                      {item.question}
+                    </h4>
+                  </div>
 
-          return (
-            <div
-              key={index}
-              className="relative px-4 py-3 rounded-lg border-2 transition-all duration-200"
-            >
-              <div className="flex items-start gap-2">
-                <div className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-slate-200 text-slate-700">
-                  <span className="text-xs font-semibold text-slate-600">
-                    Question {index + 1}
-                  </span>
+                  {item.isCorrect ? (
+                    <CheckCircle2 className="text-emerald-600" />
+                  ) : (
+                    <XCircle className="text-rose-600" />
+                  )}
                 </div>
-              </div>
 
-              <h4 className="text-base font-semibold text-slate-900 leading-relaxed">
-                {result.question}
-              </h4>
+                {/* Options */}
+                <div className="space-y-3">
+                  {item.options.map((option, i) => {
+                    const isCorrectOption =
+                      i === correctAnswerIndex;
+                    const isUserAnswer =
+                      i === userAnswerIndex;
+                    const isWrongAnswer =
+                      isUserAnswer && !item.isCorrect;
 
-              <div className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${
-                isCorrect
-                  ? 'bg-emerald-50 border-2 border-emerald-200'
-                  : 'bg-rose-50 border-2 border-rose-200'
-              }`}>
-                {isCorrect ? (
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600" strokeWidth={2.5} />
-                ) : (
-                  <XCircle className="w-5 h-5 text-rose-600" strokeWidth={2.5} />
+                    return (
+                      <div
+                        key={i}
+                        className={`p-3 rounded-lg border ${
+                          isCorrectOption
+                            ? "bg-emerald-50 border-emerald-300"
+                            : isWrongAnswer
+                            ? "bg-rose-50 border-rose-300"
+                            : "bg-slate-50 border-slate-200"
+                        }`}
+                      >
+                        <div className="flex justify-between items-center">
+                          <span>{option}</span>
+
+                          <div className="flex gap-2">
+                            {isCorrectOption && (
+                              <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded">
+                                Correct
+                              </span>
+                            )}
+
+                            {isWrongAnswer && (
+                              <span className="text-xs bg-rose-100 text-rose-700 px-2 py-1 rounded">
+                                Your Answer
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Explanation */}
+                {item.explanation && (
+                  <div className="mt-4 p-4 bg-slate-100 rounded-lg text-sm text-slate-700">
+                    <span className="font-semibold">
+                      Explanation:
+                    </span>{" "}
+                    {item.explanation}
+                  </div>
                 )}
               </div>
-
-              {result.options.map((option, optIndex) => {
-                const isCorrectOption = optIndex === correctAnswerIndex;
-                const isUserAnswer = optIndex === userAnswerIndex;
-                const isWrongAnswer = isUserAnswer && !isCorrect;
-
-                return (
-                  <div
-                    key={optIndex}
-                    className={`relative px-4 py-3 rounded-lg border-2 transition-all duration-200 ${
-                      isCorrectOption
-                        ? 'bg-emerald-50 border-emerald-300 shadow-lg shadow-emerald-100'
-                        : isWrongAnswer
-                        ? 'bg-rose-50 border-2 border-rose-300'
-                        : 'bg-slate-50 border-slate-200'
-                    }`}
-                  >
-                    {isCorrectOption && (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-100 border border-emerald-300 rounded-md text-emerald-900">
-                        <CheckCircle2 className="w-3 h-3" strokeWidth={2.5} />
-                        Correct
-                      </span>
-                    )}
-                    {isWrongAnswer && (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-rose-100 border border-rose-300 rounded-md text-rose-900">
-                        <XCircle className="w-3 h-3" strokeWidth={2.5} />
-                        Your Answer
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
-
-              {/* Explanation */}
-              {result.explanation && (
-                <div className="p-4 bg-linear-to-br from-slate-50 to-slate-100/50 border-2 border-slate-200 rounded-lg">
-                  <div className="flex items-start gap-2">
-                    <div className="shrink-0 w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center">
-                      <BookOpen className="w-4 h-4 text-slate-600" strokeWidth={2} />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1">
-                        Explanation
-                      </p>
-                      <p className="text-sm text-slate-700 leading-relaxed">
-                        {result.explanation}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
-       {/* Action Button */}
-      <div className="mt-8 flex justify-center">
-        <Link to={`/documents/${quiz.document_id}`}>
-          <button className="group relative px-12 bg-linear-to-r from-emerald-500 to-teal-500 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
-            <span className="relative z-10 flex items-center gap-2">
-              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" strokeWidth={2} />
-              Return to Document
-            </span>
+      {/* Return Button */}
+      <div className="text-center">
+        <Link to={`/documents/${quiz.document?._id}`}>
+          <button className="bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-3 rounded-lg shadow-md">
+            Return to Document
           </button>
         </Link>
       </div>
-
-      <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/20 to-white/0 pointer-events-none"></div>
     </div>
   );
 };
