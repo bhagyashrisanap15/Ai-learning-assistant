@@ -9,12 +9,12 @@ export const createGroup = async (req, res) => {
   try {
     const { name } = req.body;
 
-    if (!name) {
+    if (!name?.trim()) {
       return res.status(400).json({ message: "Group name is required" });
     }
 
     const group = await Group.create({
-      name,
+      name: name.trim(),
       members: [req.user.id], // creator auto-added
     });
 
@@ -28,11 +28,14 @@ export const createGroup = async (req, res) => {
 
 
 // ================================
-// 🔹 GET ALL GROUPS
+// 🔹 GET ALL GROUPS (Only User Groups)
 // ================================
 export const getGroups = async (req, res) => {
   try {
-    const groups = await Group.find().populate("members", "name email");
+    const groups = await Group.find({
+      members: req.user.id,
+    }).populate("members", "name email");
+
     res.json(groups);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -53,11 +56,18 @@ export const addMember = async (req, res) => {
     }
 
     const group = await Group.findById(groupId);
+
     if (!group) {
       return res.status(404).json({ message: "Group not found" });
     }
 
-    if (group.members.includes(userId)) {
+    // Only existing members can add new members
+    if (!group.members.includes(req.user.id)) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    // Prevent duplicate
+    if (group.members.some(member => member.toString() === userId)) {
       return res.status(400).json({ message: "User already in group" });
     }
 
@@ -66,10 +76,11 @@ export const addMember = async (req, res) => {
 
     const updatedGroup = await group.populate("members", "name email");
 
-    // 🔔 Notify group members via socket
-    io.to(groupId).emit("notification", {
-      message: "New member added to the group",
+    // 🔔 Real-time notification
+    io.to(groupId).emit("memberAdded", {
+      message: "A new member joined the group",
       userId,
+      groupId,
     });
 
     res.json({
@@ -84,21 +95,26 @@ export const addMember = async (req, res) => {
 
 
 // ================================
-// 🔹 USER JOIN MEETING
+// 🔹 JOIN MEETING
 // ================================
 export const joinMeeting = async (req, res) => {
   try {
     const { groupId } = req.params;
-    const { userName } = req.body;
 
-    if (!userName) {
-      return res.status(400).json({ message: "User name is required" });
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
     }
 
-    // 🔔 Notify group members
+    // Ensure user is member
+    if (!group.members.includes(req.user.id)) {
+      return res.status(403).json({ message: "Not authorized to join meeting" });
+    }
+
     io.to(groupId).emit("userJoined", {
-      message: `${userName} joined the meeting`,
-      userName,
+      message: `${req.user.name} joined the meeting`,
+      userName: req.user.name,
+      userId: req.user.id,
     });
 
     res.json({ message: "Joined meeting successfully" });
@@ -117,8 +133,14 @@ export const removeMember = async (req, res) => {
     const { groupId, userId } = req.params;
 
     const group = await Group.findById(groupId);
+
     if (!group) {
       return res.status(404).json({ message: "Group not found" });
+    }
+
+    // Only existing members can remove
+    if (!group.members.includes(req.user.id)) {
+      return res.status(403).json({ message: "Not authorized" });
     }
 
     group.members = group.members.filter(
@@ -128,6 +150,12 @@ export const removeMember = async (req, res) => {
     await group.save();
 
     const updatedGroup = await group.populate("members", "name email");
+
+    io.to(groupId).emit("memberRemoved", {
+      message: "A member was removed",
+      userId,
+      groupId,
+    });
 
     res.json({
       message: "Member removed successfully",
@@ -145,14 +173,25 @@ export const removeMember = async (req, res) => {
 // ================================
 export const deleteGroup = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { groupId } = req.params;
 
-    const group = await Group.findById(id);
+    const group = await Group.findById(groupId);
+
     if (!group) {
       return res.status(404).json({ message: "Group not found" });
     }
 
+    // Only creator (first member) can delete
+    if (group.members[0].toString() !== req.user.id) {
+      return res.status(403).json({ message: "Only creator can delete group" });
+    }
+
     await group.deleteOne();
+
+    io.to(groupId).emit("groupDeleted", {
+      message: "Group has been deleted",
+      groupId,
+    });
 
     res.json({ message: "Group deleted successfully" });
 
