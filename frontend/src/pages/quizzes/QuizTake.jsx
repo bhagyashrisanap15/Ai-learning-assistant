@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
 import quizService from '../../services/quizService';
@@ -10,12 +10,16 @@ import Button from '../../components/common/Button';
 const QuizTakePage = () => {
   const { quizId } = useParams();
   const navigate = useNavigate();
-  const [quiz, setQuiz] = React.useState(null);
-  const [loading, setLoading] = React.useState(true);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0);
-  const [selectedAnswers, setSelectedAnswers] = React.useState({});
-  const [submitting, setSubmitting] = React.useState(false);
 
+  const [quiz, setQuiz] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedAnswers, setSelectedAnswers] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+
+  // =========================
+  // Fetch Quiz
+  // =========================
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
@@ -32,6 +36,9 @@ const QuizTakePage = () => {
     fetchQuiz();
   }, [quizId]);
 
+  // =========================
+  // Handle Option Selection
+  // =========================
   const handleOptionChange = (questionId, optionIndex) => {
     setSelectedAnswers((prev) => ({
       ...prev,
@@ -39,34 +46,57 @@ const QuizTakePage = () => {
     }));
   };
 
+  // =========================
+  // Next Question
+  // =========================
   const handleNextQuestion = () => {
     if (currentQuestionIndex < quiz.questions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
     }
   };
 
+  // =========================
+  // Previous Question (FIXED)
+  // =========================
+  const handlePreviousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex((prev) => prev - 1);
+    }
+  };
+
+  // =========================
+  // Submit Quiz
+  // =========================
   const handleSubmitQuiz = async () => {
-  try {
-    setSubmitting(true);
-    
-    const formattedAnswers = Object.keys(selectedAnswers).map((questionId) => {
-      const questionIndex = quiz.questions.findIndex(q => q._id === questionId);
-      const optionIndex = selectedAnswers[questionId];
-      const selectedAnswer = quiz.questions[questionIndex].options[optionIndex];
-      
-      return { questionIndex, selectedAnswer };
-    });
+    try {
+      setSubmitting(true);
 
-    await quizService.submitQuiz(quizId, formattedAnswers);
-    toast.success('Quiz submitted successfully!');
-    navigate(`/quizzes/${quizId}/results`);
-  } catch (error) {
-    toast.error(error.message || 'Failed to submit quiz.');
-  } finally {
-    setSubmitting(false);
-  }
-};
+      const formattedAnswers = Object.keys(selectedAnswers).map((questionId) => {
+        const questionIndex = quiz.questions.findIndex(
+          (q) => q._id === questionId
+        );
 
+        const optionIndex = selectedAnswers[questionId];
+        const selectedAnswer =
+          quiz.questions[questionIndex].options[optionIndex];
+
+        return { questionIndex, selectedAnswer };
+      });
+
+      await quizService.submitQuiz(quizId, formattedAnswers);
+
+      toast.success('Quiz submitted successfully!');
+      navigate(`/quizzes/${quizId}/results`);
+    } catch (error) {
+      toast.error(error.message || 'Failed to submit quiz.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // =========================
+  // Loading State
+  // =========================
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -75,25 +105,29 @@ const QuizTakePage = () => {
     );
   }
 
+  // =========================
+  // No Quiz Found
+  // =========================
   if (!quiz || quiz.questions.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <p className="text-slate-600 text-lg">Quiz not found or has no questions.</p>
+          <p className="text-slate-600 text-lg">
+            Quiz not found or has no questions.
+          </p>
         </div>
       </div>
     );
   }
 
   const currentQuestion = quiz.questions[currentQuestionIndex];
-  const isAnswered = selectedAnswers.hasOwnProperty(currentQuestion._id);
   const answeredCount = Object.keys(selectedAnswers).length;
 
   return (
     <div className="max-w-4xl mx-auto">
       <PageHeader title={quiz.title || 'Take Quiz'} />
 
-      {/* Progress Bar */}
+      {/* Progress Section */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-semibold text-slate-700">
@@ -107,101 +141,46 @@ const QuizTakePage = () => {
         <div className="relative h-2 bg-slate-100 rounded-full overflow-hidden">
           <div
             className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-300"
-            style={{ width: `${((currentQuestionIndex + 1) / quiz.questions.length) * 100}%` }}
+            style={{
+              width: `${
+                ((currentQuestionIndex + 1) / quiz.questions.length) * 100
+              }%`,
+            }}
           />
         </div>
       </div>
 
       {/* Question Card */}
-      <div className="bg-white/80 backdrop-blur-xl border-2 border-slate-200 rounded-2xl overflow-hidden shadow-lg mb-6">
-        <div className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500">
-          <div className="inline-flex items-center gap-2">
-            <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-            <span className="text-sm font-semibold text-white">
-              Question {currentQuestionIndex + 1}
-            </span>
-          </div>
-        </div>
-
-        {/* Question Text */}
-        <h3 className="text-lg font-semibold text-slate-900 mb-6 leading-relaxed px-6 pt-6">
+      <div className="bg-white border-2 border-slate-200 rounded-2xl shadow-lg mb-6">
+        <h3 className="text-lg font-semibold text-slate-900 mb-6 px-6 pt-6">
           {currentQuestion.question}
         </h3>
 
-        {/* Options */}
         <div className="px-6 pb-6">
           {currentQuestion.options.map((option, index) => {
-            const isSelected = selectedAnswers[currentQuestion._id] === index;
+            const isSelected =
+              selectedAnswers[currentQuestion._id] === index;
+
             return (
               <label
                 key={index}
-                className={`group relative flex items-center p-3 border-2 rounded-xl cursor-pointer transition-all duration-200 mb-3 last:mb-0 ${
+                className={`flex items-center p-3 border-2 rounded-xl cursor-pointer mb-3 ${
                   isSelected
-                    ? 'border-emerald-500 bg-emerald-50 shadow-lg shadow-emerald-500/10'
-                    : 'border-slate-200 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-100'
+                    ? 'border-emerald-500 bg-emerald-50'
+                    : 'border-slate-200 bg-slate-50'
                 }`}
               >
                 <input
                   type="radio"
                   name={`question-${currentQuestion._id}`}
-                  value={index}
                   checked={isSelected}
-                  onChange={() => handleOptionChange(currentQuestion._id, index)}
-                  className="sr-only"
+                  onChange={() =>
+                    handleOptionChange(currentQuestion._id, index)
+                  }
+                  className="mr-3"
                 />
-
-                {/* Custom Radio Button */}
-                <div className={`shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
-                  isSelected
-                    ? 'border-emerald-500 bg-emerald-500'
-                    : 'border-slate-300 bg-white group-hover:border-emerald-400'
-                }`}>
-                  {isSelected && (
-                    <div className="w-2 h-2 bg-white rounded-full" />
-                  )}
-                </div>
-
-                {/* Option Text */}
-                <span className={`ml-4 text-sm font-medium transition-colors duration-200 flex-1 ${
-                  isSelected ? 'text-emerald-900' : 'text-slate-700 group-hover:text-slate-900'
-                }`}>
-                  {option}
-                </span>
-
-                {/* Selected Checkmark */}
-                {isSelected && (
-                  <CheckCircle2
-                    className="w-5 h-5 text-emerald-600 ml-2"
-                    strokeWidth={2.5}
-                  />
-                )}
+                {option}
               </label>
-            );
-          })}
-        </div>
-      </div>
-
-        <div className="mb-6">
-        <div className="flex flex-wrap items-center gap-2">
-          {quiz.questions.map((_, index) => {
-            const isAnsweredQuestion = selectedAnswers.hasOwnProperty(quiz.questions[index]._id);
-            const isCurrent = index === currentQuestionIndex;
-            
-            return (
-              <button
-                key={index}
-                onClick={() => setCurrentQuestionIndex(index)}
-                disabled={submitting}
-                className={`w-8 h-8 rounded-lg font-semibold text-xs transition-all duration-200 ${
-                  isCurrent
-                    ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30'
-                    : isAnsweredQuestion
-                    ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-700'
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
-              >
-                {index + 1}
-              </button>
             );
           })}
         </div>
@@ -214,17 +193,14 @@ const QuizTakePage = () => {
           disabled={currentQuestionIndex === 0 || submitting}
           variant="secondary"
         >
-          <ChevronLeft className="w-4 h-4" strokeWidth={2.5} />
+          <ChevronLeft className="w-4 h-4 mr-1" />
           Previous
         </Button>
 
         {currentQuestionIndex < quiz.questions.length - 1 ? (
-          <Button 
-            onClick={handleNextQuestion}
-            disabled={submitting}
-          >
+          <Button onClick={handleNextQuestion} disabled={submitting}>
             Next
-            <ChevronRight className="w-4 h-4" strokeWidth={2.5} />
+            <ChevronRight className="w-4 h-4 ml-1" />
           </Button>
         ) : (
           <Button onClick={handleSubmitQuiz} disabled={submitting}>
