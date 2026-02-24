@@ -10,9 +10,20 @@ if (!API_KEY) {
 }
 
 const MODELS = [
-    "google/gemini-2.0-flash-001",
-    "google/gemini-pro-1.5",
-    "meta-llama/llama-3.1-8b-instruct:free",
+    // Stable version of Flash 2.0 (Free)
+    "google/gemini-2.0-flash-001:free",
+    // Experimental version of Flash 2.0 (Free)
+    "google/gemini-2.0-flash-exp:free",
+    // Powerful flagship model (Free)
+    "meta-llama/llama-3.3-70b-instruct:free",
+    // Excellent for your MERN stack coding tasks (Free - Qwen 2.5 Coder)
+    "qwen/qwen-2.5-coder-32b-instruct:free",
+    // Reliable 1.5 Flash fallback
+    "google/gemini-flash-1.5:free",
+    // Reliable Mistral fallback
+    "mistralai/mistral-7b-instruct:free",
+    // Fallback that automatically picks an available free model
+    "openrouter/free",
 ];
 
 /* =========================================================
