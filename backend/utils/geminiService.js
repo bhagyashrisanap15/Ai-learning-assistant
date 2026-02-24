@@ -172,3 +172,5 @@ ${context}
 };
 
 console.log("Using API KEY:", process.env.GEMINI_API_KEY?.slice(0, 10));
+
+
