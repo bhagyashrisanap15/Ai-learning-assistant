@@ -18,12 +18,12 @@ const ProfilePage = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
 
-  useEffect (() => {
+  useEffect(() => {
     const fetchProfile = async () => {
       try {
         const { data } = await authService.getProfile();
         setUsername(data.username);
-        setEmail(data.Email);
+        setEmail(data.email);
       } catch (error) {
         toast.error("Failed to featch profile data.");
         console.error(error);
@@ -46,13 +46,16 @@ const ProfilePage = () => {
     }
     setPasswordLoading(true);
     try {
-      await authService.changePassword({ CurrentPassword , newPassword});
+      await authService.changePassword({
+        currentPassword,
+        newPassword
+      });
       toast.success("Password changed successfully!");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmNewPassword("");
     } catch (error) {
-      toast.error(error.message || "Failed to change password");   
+      toast.error(error.message || "Failed to change password");
     } finally {
       setPasswordLoading(false);
     }
