@@ -12,10 +12,13 @@ const router = express.Router();
 
 router.use(protect);
 
-router.get("/:documentId", getQuizzes);
+// ✅ Specific routes FIRST
 router.get("/quiz/:id", getQuizById);
 router.post("/:id/submit", submitQuiz);
 router.get("/:id/results", getQuizResults);
 router.delete("/:id", deleteQuiz);
+
+// ✅ Generic route LAST
+router.get("/:documentId", getQuizzes);
 
 export default router;
