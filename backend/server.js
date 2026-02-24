@@ -25,33 +25,28 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-
-// ✅ Create HTTP server
 const server = http.createServer(app);
 
-// ✅ Attach Socket.IO
-export const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-  },
-});
-
+// =======================
 // ✅ Connect Database
+// =======================
 connectDB();
+
+// =======================
+// ✅ CORS Configuration (FIXED)
+// =======================
+const corsOptions = {
+  origin: "http://localhost:5173", // your frontend
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 // =======================
 // ✅ Middlewares
 // =======================
-app.use(
-  cors({
-    origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  })
-);
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -72,27 +67,30 @@ app.use("/api/groups", groupRoutes);
 app.use("/api/users", userRoutes);
 
 // =======================
-// ✅ Socket.IO Logic
+// ✅ Socket.IO Setup (FIXED)
 // =======================
+export const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  },
+});
+
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
-  // 🔹 Join group room
   socket.on("joinRoom", (roomId) => {
     socket.join(roomId);
   });
 
-  // 🔹 Register user private room
   socket.on("registerUser", (userId) => {
-    socket.join(userId); // each user joins their own private room
+    socket.join(userId);
   });
 
-  // 🔹 Notify specific member
   socket.on("memberAdded", ({ userId, message }) => {
     io.to(userId).emit("notifyMember", { message });
   });
 
-  // 🔹 WebRTC Signaling
   socket.on("offer", ({ roomId, offer }) => {
     socket.to(roomId).emit("offer", offer);
   });
@@ -105,7 +103,6 @@ io.on("connection", (socket) => {
     socket.to(roomId).emit("ice-candidate", candidate);
   });
 
-  // 🔹 Join group room (for meeting)
   socket.on("joinGroupRoom", (groupId) => {
     socket.join(groupId);
     console.log(`Socket joined group room: ${groupId}`);
@@ -136,7 +133,9 @@ const PORT = process.env.PORT || 8000;
 
 server.listen(PORT, () => {
   console.log(
-    `Server running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`
+    `Server running in ${
+      process.env.NODE_ENV || "development"
+    } mode on port ${PORT}`
   );
 });
 
