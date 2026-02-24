@@ -6,6 +6,8 @@ import Spinner from '../../components/common/Spinner';
 import toast from 'react-hot-toast';
 import { ArrowLeft, CheckCircle2, XCircle, Trophy, Target, BookOpen } from 'lucide-react';
 
+
+//f fwwfwggegeee
 const QuizResultPage = () => {
   const { quizId } = useParams();
   const [results, setResults] = useState(null);
